@@ -1,7 +1,6 @@
 package main
 
 import "fmt"
-import "test"
 
 func main(){
 	ej1()
