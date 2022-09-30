@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 	"strconv"
+
 	"github.com/bootcamp-go/hackaton-go-bases/internal/service"
 )
 
@@ -56,6 +57,16 @@ func (f *File) Read() ([]service.Ticket, error) {
 	return tickets, nil
 }
 
-func (f *File) Write(service.Ticket) error {
+func (f *File) Write(tickets []service.Ticket) error {
+	filePtr, fileError := os.Create("tickets_new.csv")
+	if fileError != nil {
+		return fileError
+	}
+	defer func() {
+		filePtr.Close()
+	}()
+	for _ , ticket := range tickets{
+		filePtr.WriteString(ticket.Print()+"\n")
+	}
 	return nil
 }

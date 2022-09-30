@@ -14,6 +14,10 @@ type Bookings interface {
 	Update(id int, t Ticket) (Ticket, error)
 	// Delete delete a Ticket by id
 	Delete(id int) (int, error)
+	// Print tickets
+	PrintTickets()
+	// Get Tickets
+	GetTickets() (tickets []Ticket)
 }
 
 type bookings struct {
@@ -44,33 +48,53 @@ func (b *bookings) Create(t Ticket) (Ticket, error) {
 	return t, nil
 }
 
-func (b *bookings) Read(id int) (Ticket, error) {
-	defer func() error {
-		recover()
-		return fmt.Errorf("error: el ticket %d pedido no existe", id)
+func (b *bookings) Read(id int) (returnTicket Ticket, err error) {
+	defer func() {
+		panic := recover()
+		if panic != nil {
+			err = fmt.Errorf("error: el ticket %d pedido no existe", id)
+		}
 	}()
-	ticket := b.Tickets[id]
+	ticket := b.Tickets[id-1]
 	return ticket, nil
 }
 
-func (b *bookings) Update(id int, t Ticket) (Ticket, error) {
+func (b *bookings) Update(id int, t Ticket) (returnTicket Ticket, err error) {
 	b.mu.Lock()
-	defer func() error {
-		recover()
+	defer func() {
+		panic := recover()
 		b.mu.Unlock()
-		return fmt.Errorf("error: el ticket %d pedido no existe", id)
+		if panic != nil {
+			err = fmt.Errorf("error: el ticket %d pedido no existe", id)
+		}
 	}()
-	b.Tickets[id] = t
+	b.Tickets[id-1] = t
 	return t, nil
 }
 
 func (b *bookings) Delete(id int) (int, error) {
 	b.mu.Lock()
-	defer func() error {
+	defer func() {
 		recover()
 		b.mu.Unlock()
-		return nil
 	}()
-	b.Tickets[id] = b.Tickets[len(b.Tickets)-1]
+	b.Tickets[id-1] = b.Tickets[len(b.Tickets)-1]
+	b.Tickets = b.Tickets[:len(b.Tickets)-1]
+	// append(slice[: x], slice[x+1]...)
 	return 0, nil
+}
+
+func (b *bookings) PrintTickets() {
+	for _, ticket := range b.Tickets {
+		fmt.Println(ticket)
+	}
+	return
+}
+
+func (b *bookings) GetTickets() (tickets []Ticket) {
+	return b.Tickets
+}
+
+func (t *Ticket) Print() string {
+	return fmt.Sprintf("%d,%s,%s,%s,%s,%d", t.Id, t.Names, t.Email, t.Destination, t.Date, t.Price)
 }
