@@ -2,7 +2,7 @@ package main
 
 import "os"
 import "fmt"
-import "errors"
+
 
 type Customer struct {
 	id int
