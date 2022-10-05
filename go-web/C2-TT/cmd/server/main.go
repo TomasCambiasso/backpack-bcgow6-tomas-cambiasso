@@ -1,8 +1,8 @@
 package main
 
 import (
-	"backpack-bcgow6-tomas-cambiasso/C2-TT/cmd/server/handler"
-	"backpack-bcgow6-tomas-cambiasso/C2-TT/internal/transactions"
+	"github.com/TomasCambiasso/backpack-bcgow6-tomas-cambiasso/C2-TT/cmd/server/handler"
+	"github.com/TomasCambiasso/backpack-bcgow6-tomas-cambiasso/C2-TT/internal/transactions"
 	"github.com/gin-gonic/gin"
 )
 
@@ -18,5 +18,7 @@ func main() {
 	pr.POST("/", p.Store())
 	pr.GET("/", p.GetAll())
 	pr.PUT("/:id", p.Update())
+	pr.DELETE("/:id", p.Delete())
+	pr.PATCH("/:id", p.UpdateCodeAndAmount())
 	r.Run()
 }

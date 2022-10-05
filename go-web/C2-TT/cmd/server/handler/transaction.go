@@ -1,19 +1,20 @@
 package handler
 
 import (
-	"backpack-bcgow6-tomas-cambiasso/C2-TT/internal/transactions"
+	"fmt"
 	"strconv"
 
+	"github.com/TomasCambiasso/backpack-bcgow6-tomas-cambiasso/C2-TT/internal/transactions"
 	"github.com/gin-gonic/gin"
 )
 
 type request struct {
-	Transaction_code string  `json:"transaction_code" binding:"required"`
-	Moneda           string  `json:"moneda" binding:"required"`
-	Monto            float64 `json:"monto" binding:"required"`
-	Emisor           string  `json:"emisor" binding:"required"`
-	Receptor         string  `json:"receptor" binding:"required"`
-	Transaction_date string  `json:"transaction_date" binding:"required"`
+	Transaction_code string `json:"transaction_code"`
+	Moneda           string `json:"moneda"`
+	Monto            string `json:"monto"`
+	Emisor           string `json:"emisor"`
+	Receptor         string `json:"receptor" `
+	Transaction_date string `json:"transaction_date"`
 }
 
 type Transaction struct {
@@ -47,7 +48,7 @@ func (t *Transaction) GetAll() gin.HandlerFunc {
 	}
 }
 
-func (c *Transaction) Store() gin.HandlerFunc {
+func (t *Transaction) Store() gin.HandlerFunc { /// Faltan las validaciones see Update()
 	return func(ctx *gin.Context) {
 		token := ctx.Request.Header.Get("token")
 		if token != "123456" {
@@ -55,22 +56,27 @@ func (c *Transaction) Store() gin.HandlerFunc {
 			return
 		}
 		var req request
-		if err := ctx.Bind(&req); err != nil {
+		if err := ctx.ShouldBindJSON(&req); err != nil {
 			ctx.JSON(404, gin.H{
 				"error": err.Error(),
 			})
 			return
 		}
-		p, err := c.service.Store(req.Transaction_code, req.Moneda, req.Emisor, req.Receptor, req.Transaction_date, req.Monto)
+		monto, err := strconv.ParseFloat(req.Monto, 64)
+		if err != nil {
+			ctx.JSON(400, gin.H{"error": "El monto es requerido y es invalido"})
+			return
+		}
+		nt, err := t.service.Store(req.Transaction_code, req.Moneda, req.Emisor, req.Receptor, req.Transaction_date, monto)
 		if err != nil {
 			ctx.JSON(404, gin.H{"error": err.Error()})
 			return
 		}
-		ctx.JSON(200, p)
+		ctx.JSON(200, nt)
 	}
 }
 
-func (c *Transaction) Update() gin.HandlerFunc {
+func (t *Transaction) Update() gin.HandlerFunc { /// Las validaciones deberian ser una funcion aparte dado que tambien se deberian usar en store
 	return func(ctx *gin.Context) {
 		token := ctx.GetHeader("token")
 		if token != "123456" {
@@ -88,34 +94,91 @@ func (c *Transaction) Update() gin.HandlerFunc {
 			return
 		}
 		if req.Transaction_code == "" {
-			ctx.JSON(400, gin.H{"error": "El nombre del producto es requerido"})
+			ctx.JSON(400, gin.H{"error": "El codigo de la transaccion es requerido"})
 			return
 		}
 		if req.Moneda == "" {
-			ctx.JSON(400, gin.H{"error": "El tipo del producto es requerido"})
+			ctx.JSON(400, gin.H{"error": "La moneda de la transaccion es requerida"})
 			return
 		}
 		if req.Emisor == "" {
-			ctx.JSON(400, gin.H{"error": "La cantidad es requerida"})
+			ctx.JSON(400, gin.H{"error": "El emisor es requerido"})
 			return
 		}
 		if req.Transaction_date == "" {
-			ctx.JSON(400, gin.H{"error": "La cantidad es requerida"})
+			ctx.JSON(400, gin.H{"error": "La fecha de transaccion es requerida"})
 			return
 		}
 		if req.Receptor == "" {
-			ctx.JSON(400, gin.H{"error": "La cantidad es requerida"})
+			ctx.JSON(400, gin.H{"error": "El receptor es requerido"})
 			return
 		}
-		if req.Monto == 0 {
-			ctx.JSON(400, gin.H{"error": "El precio es requerido"})
+		monto, err := strconv.ParseFloat(req.Monto, 64)
+		if err != nil {
+			ctx.JSON(400, gin.H{"error": "El monto es requerido y es invalido"})
 			return
 		}
-		t, err := c.service.Update(int(id), req.Transaction_code, req.Moneda, req.Emisor, req.Receptor, req.Transaction_date, req.Monto)
+		nt, err := t.service.Update(int(id), req.Transaction_code, req.Moneda, req.Emisor, req.Receptor, req.Transaction_date, monto)
 		if err != nil {
 			ctx.JSON(404, gin.H{"error": err.Error()})
 			return
 		}
-		ctx.JSON(200, t)
+		ctx.JSON(200, nt)
+	}
+}
+
+func (t *Transaction) Delete() gin.HandlerFunc {
+	return func(ctx *gin.Context) {
+		token := ctx.GetHeader("token")
+		if token != "123456" {
+			ctx.JSON(401, gin.H{"error": "token inválido"})
+			return
+		}
+		id, err := strconv.ParseInt(ctx.Param("id"), 10, 64)
+		if err != nil {
+			ctx.JSON(400, gin.H{"error": "invalid ID"})
+			return
+		}
+		err = t.service.Delete(int(id))
+		if err != nil {
+			ctx.JSON(404, gin.H{"error": err.Error()})
+			return
+		}
+		ctx.JSON(200, gin.H{"data": fmt.Sprintf("La transaccion %d ha sido eliminada", id)})
+	}
+}
+
+func (t *Transaction) UpdateCodeAndAmount() gin.HandlerFunc {
+	return func(ctx *gin.Context) {
+		token := ctx.GetHeader("token")
+		if token != "123456" {
+			ctx.JSON(401, gin.H{"error": "token inválido"})
+			return
+		}
+		id, err := strconv.Atoi(ctx.Param("id"))
+		if err != nil {
+			ctx.JSON(400, gin.H{"error": "invalid ID"})
+			return
+		}
+		var req request
+		if err := ctx.ShouldBindJSON(&req); err != nil {
+			ctx.JSON(400, gin.H{"error": err.Error()})
+			return
+		}
+		if req.Transaction_code == "" {
+			ctx.JSON(400, gin.H{"error": "El nombre del producto es requerido"})
+			return
+		}
+		monto, err := strconv.ParseFloat(req.Monto, 64)
+		if err != nil {
+			ctx.JSON(400, gin.H{"error": "El precio es requerido y es invalido"})
+			return
+		}
+		nt, err := t.service.UpdateCodeAndAmount(id, req.Transaction_code, monto)
+		if err != nil {
+			ctx.JSON(404, gin.H{"error": err.Error()})
+			return
+		}
+		ctx.JSON(200, nt)
 	}
 }

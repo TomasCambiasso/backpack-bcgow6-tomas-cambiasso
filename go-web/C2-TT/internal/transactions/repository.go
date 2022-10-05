@@ -23,6 +23,8 @@ type Repository interface {
 	Store(transaction_code, moneda, emisor, receptor, transaction_date string, monto float64) (transaction, error)
 	LastID() (int, error)
 	Update(id int, transaction_code, moneda, emisor, receptor, transaction_date string, monto float64) (transaction, error)
+	UpdateCodeAndAmount(id int, transaction_code string, monto float64) (transaction, error)
+	Delete(id int) error
 }
 
 type repository struct{} //struct implementa los metodos de la interfaz
@@ -69,6 +71,42 @@ func (r *repository) Update(id int, transaction_code, moneda, emisor, receptor, 
 			t.id = id
 			transactions[i] = t
 			updated = true
+			break
+		}
+	}
+	if !updated {
+		return transaction{}, fmt.Errorf("Transaccion %d no encontrada", id)
+	}
+	return t, nil
+}
+
+func (r *repository) Delete(id int) error {
+	deleted := false
+	index := -1
+	for i := range transactions {
+		if transactions[i].id == id {
+			index = i
+			deleted = true
+			break
+		}
+	}
+	if !deleted {
+		return fmt.Errorf("Transaccion %d no encontrada", id)
+	}
+	transactions = append(transactions[:index], transactions[index+1:]...)
+	return nil
+}
+
+func (r *repository) UpdateCodeAndAmount(id int, transaction_code string, monto float64) (transaction, error) {
+	updated := false
+	var t transaction
+	for i := range transactions {
+		if transactions[i].id == id {
+			transactions[i].Transaction_code = transaction_code
+			transactions[i].Monto = monto
+			t = transactions[i]
+			updated = true
+			break
 		}
 	}
 	if !updated {
