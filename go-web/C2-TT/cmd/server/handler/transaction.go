@@ -1,10 +1,11 @@
 package handler
 
 import (
+	"github.com/TomasCambiasso/backpack-bcgow6-tomas-cambiasso/C2-TT/internal/transactions"
 	"fmt"
+	"os"
 	"strconv"
 
-	"github.com/TomasCambiasso/backpack-bcgow6-tomas-cambiasso/C2-TT/internal/transactions"
 	"github.com/gin-gonic/gin"
 )
 
@@ -30,7 +31,7 @@ func NewTransaction(s transactions.Service) *Transaction {
 func (t *Transaction) GetAll() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		token := ctx.Request.Header.Get("token")
-		if token != "123456" {
+		if token != os.Getenv("TOKEN") {
 			ctx.JSON(401, gin.H{
 				"error": "token inválido",
 			})
@@ -51,7 +52,7 @@ func (t *Transaction) GetAll() gin.HandlerFunc {
 func (t *Transaction) Store() gin.HandlerFunc { /// Faltan las validaciones see Update()
 	return func(ctx *gin.Context) {
 		token := ctx.Request.Header.Get("token")
-		if token != "123456" {
+		if token != os.Getenv("TOKEN") {
 			ctx.JSON(401, gin.H{"error": "token inválido"})
 			return
 		}
@@ -79,7 +80,7 @@ func (t *Transaction) Store() gin.HandlerFunc { /// Faltan las validaciones see 
 func (t *Transaction) Update() gin.HandlerFunc { /// Las validaciones deberian ser una funcion aparte dado que tambien se deberian usar en store
 	return func(ctx *gin.Context) {
 		token := ctx.GetHeader("token")
-		if token != "123456" {
+		if token != os.Getenv("TOKEN") {
 			ctx.JSON(401, gin.H{"error": "token inválido"})
 			return
 		}
@@ -130,7 +131,7 @@ func (t *Transaction) Update() gin.HandlerFunc { /// Las validaciones deberian s
 func (t *Transaction) Delete() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		token := ctx.GetHeader("token")
-		if token != "123456" {
+		if token != os.Getenv("TOKEN") {
 			ctx.JSON(401, gin.H{"error": "token inválido"})
 			return
 		}
@@ -151,7 +152,7 @@ func (t *Transaction) Delete() gin.HandlerFunc {
 func (t *Transaction) UpdateCodeAndAmount() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		token := ctx.GetHeader("token")
-		if token != "123456" {
+		if token != os.Getenv("TOKEN") {
 			ctx.JSON(401, gin.H{"error": "token inválido"})
 			return
 		}

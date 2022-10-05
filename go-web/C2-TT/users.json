@@ -1,0 +1,30 @@
+[
+  {
+    "id" : 1,
+    "transaction_code": "0000",
+    "moneda": "AR",
+    "monto": 120.6,
+    "emisor": "Tomas Cambiasso",
+    "receptor": "Tomas Cambiasso2",
+    "transaction_date": "3/10/2022"
+  },
+  {
+    "id" : 2,
+    "transaction_code": "000A",
+    "moneda": "EU",
+    "monto": 30,
+    "emisor": "Jose Juan",
+    "receptor": "Tomas Cambiasso",
+    "transaction_date": "4/10/2022"
+  },
+  {
+    "id" : 3,
+    "transaction_code": "0010",
+    "moneda": "US",
+    "monto": 40,
+    "emisor": "Ladimus Postalo",
+    "receptor": "Jose Juan",
+    "transaction_date": "5/10/2022"
+  }
+
+]
