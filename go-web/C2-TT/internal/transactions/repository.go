@@ -8,12 +8,12 @@ import (
 
 type transaction struct {
 	Id               int     `json:"id"`
-	Transaction_code string  `json:"transaction_code" binding:"required"`
-	Moneda           string  `json:"moneda" binding:"required"`
-	Monto            float64 `json:"monto" binding:"required"`
-	Emisor           string  `json:"emisor" binding:"required"`
-	Receptor         string  `json:"receptor" binding:"required"`
-	Transaction_date string  `json:"transaction_date" binding:"required"`
+	Transaction_code string  `json:"transaction_code"`
+	Moneda           string  `json:"moneda"`
+	Monto            float64 `json:"monto"`
+	Emisor           string  `json:"emisor"`
+	Receptor         string  `json:"receptor" `
+	Transaction_date string  `json:"transaction_date"`
 }
 
 var lastID int
@@ -57,6 +57,7 @@ func (r *repository) Store(transaction_code, moneda, emisor, receptor, transacti
 	} else {
 		lastId = transactions[len(transactions)-1].Id
 	}
+	lastId++
 	t.Id = lastId
 
 	transactions = append(transactions, t)
