@@ -1,13 +1,18 @@
 package main
 
 import (
+	"fmt"
+	"os"
+
 	"github.com/TomasCambiasso/backpack-bcgow6-tomas-cambiasso/C2-TT/cmd/server/handler"
+	"github.com/TomasCambiasso/backpack-bcgow6-tomas-cambiasso/C2-TT/docs"
 	"github.com/TomasCambiasso/backpack-bcgow6-tomas-cambiasso/C2-TT/internal/transactions"
 	"github.com/TomasCambiasso/backpack-bcgow6-tomas-cambiasso/C2-TT/pkg/store"
-	"fmt"
 
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
+	swaggerFiles "github.com/swaggo/files"
+	ginSwagger "github.com/swaggo/gin-swagger"
 )
 
 func main() {
@@ -23,6 +28,8 @@ func main() {
 
 	r := gin.Default()
 
+	docs.SwaggerInfo.Host = os.Getenv("HOST")
+	r.GET("/docs/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 	pr := r.Group("/transactions")
 	pr.POST("/", p.Store())
 	pr.GET("/", p.GetAll())
