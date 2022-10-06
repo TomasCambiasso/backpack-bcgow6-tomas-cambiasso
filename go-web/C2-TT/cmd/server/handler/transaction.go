@@ -30,6 +30,14 @@ func NewTransaction(s transactions.Service) *Transaction {
 	}
 }
 
+// ListTransactions godoc
+// @Summary List transactions
+// @Tags Transactions
+// @Description get transactions
+// @Produce  json
+// @Param token header string true "token"
+// @Success 200 {object} web.Response
+// @Router /transactions [get]
 func (t *Transaction) GetAll() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		token := ctx.Request.Header.Get("token")
@@ -51,7 +59,16 @@ func (t *Transaction) GetAll() gin.HandlerFunc {
 		ctx.JSON(200, web.NewResponse(200, ts, ""))
 	}
 }
-
+// StoreTransactions godoc
+// @Summary Store transactions
+// @Tags Transactions
+// @Description store transactions
+// @Accept  json
+// @Produce  json
+// @Param token header string true "token"
+// @Param product body request true "Transaction to store"
+// @Success 200 {object} web.Response
+// @Router /transactions [post]
 func (t *Transaction) Store() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		token := ctx.Request.Header.Get("token")
@@ -73,6 +90,17 @@ func (t *Transaction) Store() gin.HandlerFunc {
 	}
 }
 
+// UpdateTransactions godoc
+// @Summary Update transactions
+// @Tags Transactions
+// @Description update transactions, providing all values
+// @Accept  json
+// @Produce  json
+// @Param token header string true "token"
+// @Param id path int true "Transaction ID"
+// @Param product body request true "All transaction values to update"
+// @Success 200 {object} web.Response
+// @Router /transactions [put]
 func (t *Transaction) Update() gin.HandlerFunc { /// Las validaciones deberian ser una funcion aparte dado que tambien se deberian usar en store
 	return func(ctx *gin.Context) {
 		token := ctx.GetHeader("token")
@@ -98,7 +126,15 @@ func (t *Transaction) Update() gin.HandlerFunc { /// Las validaciones deberian s
 		ctx.JSON(200, web.NewResponse(200, nt, ""))
 	}
 }
-
+// DeleteTransaction godoc
+// @Summary Delete transaction
+// @Tags Transactions
+// @Description Delete transactions, providing id to delete
+// @Produce  json
+// @Param token header string true "token"
+// @Param id path int true "Transaction ID"
+// @Success 200 {object} web.Response
+// @Router /transactions{id} [delete]
 func (t *Transaction) Delete() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		token := ctx.GetHeader("token")
@@ -121,6 +157,17 @@ func (t *Transaction) Delete() gin.HandlerFunc {
 	}
 }
 
+// UpdateTransactionsCodeAndAmount godoc
+// @Summary UpdateCodeAndAmount transactions
+// @Tags Transactions
+// @Description update transaction code and amount
+// @Accept  json
+// @Produce  json
+// @Param token header string true "token"
+// @Param id path int true "Transaction ID to update"
+// @Param product body request true "Code and amount to update"
+// @Success 200 {object} web.Response
+// @Router /transactions [patch]
 func (t *Transaction) UpdateCodeAndAmount() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		token := ctx.GetHeader("token")
