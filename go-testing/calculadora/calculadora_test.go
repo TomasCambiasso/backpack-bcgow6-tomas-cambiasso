@@ -33,3 +33,4 @@ func TestDivide(t *testing.T) {
 	assert.ErrorContains(t, err, "El denominador no puede ser 0")
 	assert.EqualErrorf(t, err, "El denominador no puede ser 0", "AAAAAAAAAAAA")
 }
+
