@@ -43,3 +43,5 @@ func (fs *fileStore) Read(data interface{}) error {
 	}
 	return json.Unmarshal(file, &data)
 }
+
+func
