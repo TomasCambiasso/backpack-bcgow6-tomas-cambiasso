@@ -107,7 +107,7 @@ func (r *repository) Update(id int, transaction_code, moneda, emisor, receptor, 
 	if !updated {
 		return transaction{}, fmt.Errorf("Transaccion %d no encontrada", id)
 	}
-	if err := r.db.Write(transactions); err != nil {
+	if err := r.db.Write(&transactions); err != nil {
 		return transaction{}, err
 	}
 	return t, nil
@@ -134,7 +134,7 @@ func (r *repository) Delete(id int) error {
 	}
 	transactions = append(transactions[:index], transactions[index+1:]...)
 
-	if err := r.db.Write(transactions); err != nil {
+	if err := r.db.Write(&transactions); err != nil {
 		return err
 	}
 	return nil
@@ -163,7 +163,7 @@ func (r *repository) UpdateCodeAndAmount(id int, transaction_code string, monto 
 		return transaction{}, fmt.Errorf("Transaccion %d no encontrada", id)
 	}
 
-	if err := r.db.Write(transactions); err != nil {
+	if err := r.db.Write(&transactions); err != nil {
 		return transaction{}, err
 	}
 	return t, nil
