@@ -4,6 +4,7 @@ import (
 	"errors"
 	"testing"
 
+	"github.com/TomasCambiasso/backpack-bcgow6-tomas-cambiasso/internal/domain"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -11,7 +12,7 @@ type StubDB struct {
 }
 
 func (st StubDB) Read(data interface{}) error {
-	transactions := []transaction{
+	transactions := []domain.Transaction{
 		{
 			Id:               2,
 			Transaction_code: "000A",
@@ -32,7 +33,7 @@ func (st StubDB) Read(data interface{}) error {
 		},
 	}
 
-	transData := data.(*[]transaction)
+	transData := data.(*[]domain.Transaction)
 	*transData = append(*transData, transactions...)
 
 	return nil
@@ -42,6 +43,31 @@ func (st StubDB) Write(data interface{}) error {
 	return nil
 }
 
+type MockDB struct {
+	ReadCheck    bool
+	ReadError    bool
+	WriteError   bool
+	Transactions []domain.Transaction
+}
+
+func (mk *MockDB) Read(data interface{}) error {
+	transData := data.(*[]domain.Transaction)
+	if mk.ReadError {
+		return errors.New("couldn't read")
+	}
+	*transData = append(*transData, mk.Transactions...)
+	mk.ReadCheck = true
+	return nil
+}
+
+func (mk *MockDB) Write(data interface{}) error {
+	if mk.WriteError {
+		return errors.New("couldn't write")
+	}
+	transData := data.(*[]domain.Transaction)
+	mk.Transactions = *transData
+	return nil
+}
 func TestGetAll(t *testing.T) {
 
 	db := StubDB{}
@@ -52,7 +78,7 @@ func TestGetAll(t *testing.T) {
 		println("algo")
 	}
 
-	expectedTrans := []transaction{
+	expectedTrans := []domain.Transaction{
 		{
 			Id:               2,
 			Transaction_code: "000A",
@@ -76,34 +102,8 @@ func TestGetAll(t *testing.T) {
 	assert.Equal(t, expectedTrans, trans)
 }
 
-type MockDB struct {
-	readCheck    bool
-	readError    bool
-	writeError   bool
-	transactions []transaction
-}
-
-func (mk *MockDB) Read(data interface{}) error {
-	transData := data.(*[]transaction)
-	if mk.readError {
-		return errors.New("couldn't read")
-	}
-	*transData = append(*transData, mk.transactions...)
-	mk.readCheck = true
-	return nil
-}
-
-func (mk *MockDB) Write(data interface{}) error {
-	if mk.writeError {
-		return errors.New("couldn't write")
-	}
-	transData := data.(*[]transaction)
-	mk.transactions = *transData
-	return nil
-}
-
 func TestUpdateName(t *testing.T) {
-	transactions := []transaction{
+	transactions := []domain.Transaction{
 		{
 			Id:               2,
 			Transaction_code: "Before Update",
@@ -124,10 +124,10 @@ func TestUpdateName(t *testing.T) {
 		},
 	}
 
-	db := MockDB{transactions: transactions}
+	db := MockDB{Transactions: transactions}
 	repository := NewRepository(&db)
 
-	expectedTrans := transaction{
+	expectedTrans := domain.Transaction{
 		Id:               2,
 		Transaction_code: "After Update",
 		Moneda:           "EU",
@@ -141,7 +141,7 @@ func TestUpdateName(t *testing.T) {
 	if err != nil {
 		println("algo")
 	}
-	assert.True(t, db.readCheck)
+	assert.True(t, db.ReadCheck)
 	assert.Equal(t, expectedTrans, newT)
 
 }
@@ -152,12 +152,12 @@ func TestUpdateNameNotFound(t *testing.T) {
 	repository := NewRepository(&db)
 	newT, err := repository.UpdateCodeAndAmount(2, "After Update", 9999)
 	assert.ErrorContains(t, err, "no encontrada")
-	assert.Equal(t, transaction{}, newT)
+	assert.Equal(t, domain.Transaction{}, newT)
 
 }
 
 func TestStoreOk(t *testing.T) {
-	transactions := []transaction{
+	transactions := []domain.Transaction{
 		{
 			Id:               2,
 			Transaction_code: "Before Update",
@@ -178,10 +178,10 @@ func TestStoreOk(t *testing.T) {
 		},
 	}
 
-	db := MockDB{transactions: transactions}
+	db := MockDB{Transactions: transactions}
 	repository := NewRepository(&db)
 
-	expectedTrans := transaction{
+	expectedTrans := domain.Transaction{
 		Id:               4,
 		Transaction_code: "3",
 		Moneda:           "3",
@@ -195,18 +195,18 @@ func TestStoreOk(t *testing.T) {
 	if err != nil {
 		println("algo")
 	}
-	assert.True(t, db.readCheck)
+	assert.True(t, db.ReadCheck)
 	assert.Equal(t, expectedTrans, newT)
 
 }
 
 func TestStoreFirstElement(t *testing.T) {
-	transactions := []transaction{}
+	transactions := []domain.Transaction{}
 
-	db := MockDB{transactions: transactions}
+	db := MockDB{Transactions: transactions}
 	repository := NewRepository(&db)
 
-	expectedTrans := transaction{
+	expectedTrans := domain.Transaction{
 		Id:               1,
 		Transaction_code: "3",
 		Moneda:           "3",
@@ -220,7 +220,7 @@ func TestStoreFirstElement(t *testing.T) {
 	if err != nil {
 		println("algo")
 	}
-	assert.True(t, db.readCheck)
+	assert.True(t, db.ReadCheck)
 	assert.Equal(t, expectedTrans, newT)
 
 }

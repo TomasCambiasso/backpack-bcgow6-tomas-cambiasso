@@ -3,17 +3,18 @@ package transactions
 import (
 	"testing"
 
+	"github.com/TomasCambiasso/backpack-bcgow6-tomas-cambiasso/internal/domain"
 	"github.com/stretchr/testify/assert"
 )
 
 func TestUpdateReadErr(t *testing.T) {
 
 	db := MockDB{}
-	db.readError = true
+	db.ReadError = true
 	repository := NewRepository(&db)
 	service := NewService(repository)
 
-	expectedTrans := transaction{
+	expectedTrans := domain.Transaction{
 		Id:               2,
 		Transaction_code: "After Update",
 		Moneda:           "After Update",
@@ -26,11 +27,11 @@ func TestUpdateReadErr(t *testing.T) {
 	updT, err := service.Update(2, expectedTrans.Transaction_code, expectedTrans.Moneda, expectedTrans.Emisor, expectedTrans.Moneda, expectedTrans.Transaction_date, expectedTrans.Monto)
 
 	assert.ErrorContains(t, err, "couldn't read")
-	assert.Equal(t, transaction{}, updT)
+	assert.Equal(t, domain.Transaction{}, updT)
 }
 
 func TestUpdateWriteErr(t *testing.T) {
-	transactions := []transaction{
+	transactions := []domain.Transaction{
 		{
 			Id:               2,
 			Transaction_code: "Before Update",
@@ -51,12 +52,12 @@ func TestUpdateWriteErr(t *testing.T) {
 		},
 	}
 
-	db := MockDB{transactions: transactions}
-	db.writeError = true
+	db := MockDB{Transactions: transactions}
+	db.WriteError = true
 	repository := NewRepository(&db)
 	service := NewService(repository)
 
-	expectedTrans := transaction{
+	expectedTrans := domain.Transaction{
 		Id:               2,
 		Transaction_code: "After Update",
 		Moneda:           "After Update",
@@ -69,7 +70,7 @@ func TestUpdateWriteErr(t *testing.T) {
 	updT, err := service.Update(2, expectedTrans.Transaction_code, expectedTrans.Moneda, expectedTrans.Emisor, expectedTrans.Moneda, expectedTrans.Transaction_date, expectedTrans.Monto)
 
 	assert.ErrorContains(t, err, "couldn't write")
-	assert.Equal(t, transaction{}, updT)
+	assert.Equal(t, domain.Transaction{}, updT)
 }
 
 func TestUpdateNotFound(t *testing.T) {
@@ -78,7 +79,7 @@ func TestUpdateNotFound(t *testing.T) {
 	repository := NewRepository(&db)
 	service := NewService(repository)
 
-	expectedTrans := transaction{
+	expectedTrans := domain.Transaction{
 		Id:               2,
 		Transaction_code: "After Update",
 		Moneda:           "After Update",
@@ -91,12 +92,12 @@ func TestUpdateNotFound(t *testing.T) {
 	updT, err := service.Update(2, expectedTrans.Transaction_code, expectedTrans.Moneda, expectedTrans.Emisor, expectedTrans.Moneda, expectedTrans.Transaction_date, expectedTrans.Monto)
 
 	assert.ErrorContains(t, err, "no encontrada")
-	assert.Equal(t, transaction{}, updT)
+	assert.Equal(t, domain.Transaction{}, updT)
 }
 
 func TestUpdateOk(t *testing.T) {
 
-	transactions := []transaction{
+	transactions := []domain.Transaction{
 		{
 			Id:               2,
 			Transaction_code: "Before Update",
@@ -117,11 +118,11 @@ func TestUpdateOk(t *testing.T) {
 		},
 	}
 
-	db := MockDB{transactions: transactions}
+	db := MockDB{Transactions: transactions}
 	repository := NewRepository(&db)
 	service := NewService(repository)
 
-	expectedTrans := transaction{
+	expectedTrans := domain.Transaction{
 		Id:               2,
 		Transaction_code: "After Update",
 		Moneda:           "After Update",
@@ -134,13 +135,13 @@ func TestUpdateOk(t *testing.T) {
 	updT, err := service.Update(2, expectedTrans.Transaction_code, expectedTrans.Moneda, expectedTrans.Emisor, expectedTrans.Moneda, expectedTrans.Transaction_date, expectedTrans.Monto)
 
 	assert.Nil(t, err)
-	assert.True(t, db.readCheck)
+	assert.True(t, db.ReadCheck)
 	assert.Equal(t, expectedTrans, updT)
 }
 
 func TestDeleteExistentId(t *testing.T) {
 
-	transactions := []transaction{
+	transactions := []domain.Transaction{
 		{
 			Id:               2,
 			Transaction_code: "Before Update",
@@ -161,7 +162,7 @@ func TestDeleteExistentId(t *testing.T) {
 		},
 	}
 
-	db := MockDB{transactions: transactions}
+	db := MockDB{Transactions: transactions}
 	repository := NewRepository(&db)
 	service := NewService(repository)
 
@@ -173,7 +174,7 @@ func TestDeleteExistentId(t *testing.T) {
 
 func TestDeleteNonExistentId(t *testing.T) {
 
-	transactions := []transaction{
+	transactions := []domain.Transaction{
 		{
 			Id:               2,
 			Transaction_code: "Before Update",
@@ -194,11 +195,11 @@ func TestDeleteNonExistentId(t *testing.T) {
 		},
 	}
 
-	db := MockDB{transactions: transactions}
+	db := MockDB{Transactions: transactions}
 	repository := NewRepository(&db)
 	service := NewService(repository)
 
-	expectedTrans := transaction{
+	expectedTrans := domain.Transaction{
 		Id:               2,
 		Transaction_code: "After Update",
 		Moneda:           "After Update",
@@ -211,6 +212,6 @@ func TestDeleteNonExistentId(t *testing.T) {
 	updT, err := service.Update(2, expectedTrans.Transaction_code, expectedTrans.Moneda, expectedTrans.Emisor, expectedTrans.Moneda, expectedTrans.Transaction_date, expectedTrans.Monto)
 
 	assert.Nil(t, err)
-	assert.True(t, db.readCheck)
+	assert.True(t, db.ReadCheck)
 	assert.Equal(t, expectedTrans, updT)
 }

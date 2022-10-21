@@ -3,28 +3,19 @@ package transactions
 import (
 	"fmt"
 
+	"github.com/TomasCambiasso/backpack-bcgow6-tomas-cambiasso/internal/domain"
 	"github.com/TomasCambiasso/backpack-bcgow6-tomas-cambiasso/pkg/store"
 )
-
-type transaction struct {
-	Id               int     `json:"id"`
-	Transaction_code string  `json:"transaction_code"`
-	Moneda           string  `json:"moneda"`
-	Monto            float64 `json:"monto"`
-	Emisor           string  `json:"emisor"`
-	Receptor         string  `json:"receptor" `
-	Transaction_date string  `json:"transaction_date"`
-}
 
 var lastID int
 
 // ***Importado**//
 type Repository interface {
-	GetAll() ([]transaction, error)
-	Store(transaction_code, moneda, emisor, receptor, transaction_date string, monto float64) (transaction, error)
+	GetAll() ([]domain.Transaction, error)
+	Store(transaction_code, moneda, emisor, receptor, transaction_date string, monto float64) (domain.Transaction, error)
 	LastID() (int, error)
-	Update(id int, transaction_code, moneda, emisor, receptor, transaction_date string, monto float64) (transaction, error)
-	UpdateCodeAndAmount(id int, transaction_code string, monto float64) (transaction, error)
+	Update(id int, transaction_code, moneda, emisor, receptor, transaction_date string, monto float64) (domain.Transaction, error)
+	UpdateCodeAndAmount(id int, transaction_code string, monto float64) (domain.Transaction, error)
 	Delete(id int) error
 }
 
@@ -36,8 +27,8 @@ func NewRepository(db store.Store) Repository {
 	return &repository{db}
 }
 
-func (r *repository) Store(transaction_code, moneda, emisor, receptor, transaction_date string, monto float64) (transaction, error) {
-	t := transaction{
+func (r *repository) Store(transaction_code, moneda, emisor, receptor, transaction_date string, monto float64) (domain.Transaction, error) {
+	t := domain.Transaction{
 		Transaction_code: transaction_code,
 		Moneda:           moneda,
 		Monto:            monto,
@@ -45,10 +36,10 @@ func (r *repository) Store(transaction_code, moneda, emisor, receptor, transacti
 		Receptor:         receptor,
 		Transaction_date: transaction_date,
 	}
-	var transactions []transaction
+	var transactions []domain.Transaction
 	err := r.db.Read(&transactions)
 	if err != nil {
-		return transaction{}, err
+		return domain.Transaction{}, err
 	}
 	var lastId int
 
@@ -63,14 +54,14 @@ func (r *repository) Store(transaction_code, moneda, emisor, receptor, transacti
 	transactions = append(transactions, t)
 
 	if err := r.db.Write(&transactions); err != nil {
-		return transaction{}, err
+		return domain.Transaction{}, err
 	}
 
 	return t, nil
 }
 
-func (r *repository) GetAll() ([]transaction, error) {
-	var transactions []transaction
+func (r *repository) GetAll() ([]domain.Transaction, error) {
+	var transactions []domain.Transaction
 	err := r.db.Read(&transactions)
 	return transactions, err
 }
@@ -79,8 +70,8 @@ func (r *repository) LastID() (int, error) {
 	return lastID, nil
 }
 
-func (r *repository) Update(id int, transaction_code, moneda, emisor, receptor, transaction_date string, monto float64) (transaction, error) {
-	t := transaction{
+func (r *repository) Update(id int, transaction_code, moneda, emisor, receptor, transaction_date string, monto float64) (domain.Transaction, error) {
+	t := domain.Transaction{
 		Transaction_code: transaction_code,
 		Moneda:           moneda,
 		Monto:            monto,
@@ -89,10 +80,10 @@ func (r *repository) Update(id int, transaction_code, moneda, emisor, receptor, 
 		Transaction_date: transaction_date,
 	}
 
-	var transactions []transaction
+	var transactions []domain.Transaction
 	err := r.db.Read(&transactions)
 	if err != nil {
-		return transaction{}, err
+		return domain.Transaction{}, err
 	}
 
 	updated := false
@@ -105,17 +96,17 @@ func (r *repository) Update(id int, transaction_code, moneda, emisor, receptor, 
 		}
 	}
 	if !updated {
-		return transaction{}, fmt.Errorf("Transaccion %d no encontrada", id)
+		return domain.Transaction{}, fmt.Errorf("Transaccion %d no encontrada", id)
 	}
 	if err := r.db.Write(&transactions); err != nil {
-		return transaction{}, err
+		return domain.Transaction{}, err
 	}
 	return t, nil
 }
 
 func (r *repository) Delete(id int) error {
 
-	var transactions []transaction
+	var transactions []domain.Transaction
 	err := r.db.Read(&transactions)
 	if err != nil {
 		return err
@@ -140,16 +131,16 @@ func (r *repository) Delete(id int) error {
 	return nil
 }
 
-func (r *repository) UpdateCodeAndAmount(id int, transaction_code string, monto float64) (transaction, error) {
+func (r *repository) UpdateCodeAndAmount(id int, transaction_code string, monto float64) (domain.Transaction, error) {
 
-	var transactions []transaction
+	var transactions []domain.Transaction
 	err := r.db.Read(&transactions)
 	if err != nil {
-		return transaction{}, err
+		return domain.Transaction{}, err
 	}
 
 	updated := false
-	var t transaction
+	var t domain.Transaction
 	for i := range transactions {
 		if transactions[i].Id == id {
 			transactions[i].Transaction_code = transaction_code
@@ -160,11 +151,11 @@ func (r *repository) UpdateCodeAndAmount(id int, transaction_code string, monto 
 		}
 	}
 	if !updated {
-		return transaction{}, fmt.Errorf("Transaccion %d no encontrada", id)
+		return domain.Transaction{}, fmt.Errorf("Transaccion %d no encontrada", id)
 	}
 
 	if err := r.db.Write(&transactions); err != nil {
-		return transaction{}, err
+		return domain.Transaction{}, err
 	}
 	return t, nil
 }

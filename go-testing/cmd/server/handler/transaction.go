@@ -104,7 +104,7 @@ func (t *Transaction) Store() gin.HandlerFunc {
 func (t *Transaction) Update() gin.HandlerFunc { /// Las validaciones deberian ser una funcion aparte dado que tambien se deberian usar en store
 	return func(ctx *gin.Context) {
 		token := ctx.GetHeader("token")
-		if token != os.Getenv("TOKEN") {
+		if token != "123456"{
 			ctx.JSON(401, web.NewResponse(401, nil, "Token inválido"))
 			return
 		}
