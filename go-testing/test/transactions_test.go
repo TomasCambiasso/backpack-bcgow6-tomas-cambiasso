@@ -7,18 +7,20 @@ import (
 	"net/http/httptest"
 	"testing"
 
+	"github.com/TomasCambiasso/backpack-bcgow6-tomas-cambiasso/cmd/server/handler"
+	"github.com/TomasCambiasso/backpack-bcgow6-tomas-cambiasso/internal/domain"
 	"github.com/TomasCambiasso/backpack-bcgow6-tomas-cambiasso/internal/transactions"
 	"github.com/gin-gonic/gin"
 	"github.com/stretchr/testify/assert"
 )
 
-func createServer(mk transactions.) *gin.Engine {
+func createServer(mk MockDB) *gin.Engine {
 
 	gin.SetMode(gin.ReleaseMode)
 
 	repo := transactions.NewRepository(&mk)
 	service := transactions.NewService(repo)
-	p := NewTransaction(service)
+	p := handler.NewTransaction(service)
 
 	r := gin.Default()
 
@@ -40,7 +42,7 @@ func createRequestTest(method string, url string, body string) (*http.Request, *
 func TestUpdateProduct(t *testing.T) {
 	// arrrange
 	mockDB := MockDB{
-		Transactions: []transaction{
+		Transactions: []domain.Transaction{
 			{
 				Id:               2,
 				Transaction_code: "000A",
@@ -60,7 +62,7 @@ func TestUpdateProduct(t *testing.T) {
 				Transaction_date: "5/10/2022",
 			},
 		}}
-	var resp transaction
+	var resp domain.Transaction
 	r := createServer(mockDB)
 	req, rr := createRequestTest(http.MethodPut, "/transactions/2", `{
         "Transaction_code": "2","Moneda": "2","Monto": 10,"Emisor": "2","Receptor":"2","Transaction_date":"4/10/2022"
@@ -70,5 +72,5 @@ func TestUpdateProduct(t *testing.T) {
 	// assert
 	err := json.Unmarshal(rr.Body.Bytes(), &resp)
 	assert.Nil(t, err)
-	assert.Equal(t, http.StatusCreated, rr.Code)
+	assert.Equal(t, http.StatusOK, rr.Code)
 }

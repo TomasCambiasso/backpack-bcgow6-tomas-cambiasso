@@ -3,12 +3,18 @@ package test
 import (
 	"errors"
 
-	"github.com/TomasCambiasso/backpack-bcgow6-tomas-cambiasso/internal/transactions"
+	"github.com/TomasCambiasso/backpack-bcgow6-tomas-cambiasso/internal/domain"
 )
+type MockDB struct {
+	ReadCheck    bool
+	ReadError    bool
+	WriteError   bool
+	Transactions []domain.Transaction
+}
 
 
-func (mk transactions.m) Read(data interface{}) error {
-	transData := data.(*[]transactions.transaction)
+func (mk *MockDB) Read(data interface{}) error {
+	transData := data.(*[]domain.Transaction)
 	if mk.ReadError {
 		return errors.New("couldn't read")
 	}
@@ -21,7 +27,7 @@ func (mk *MockDB) Write(data interface{}) error {
 	if mk.WriteError {
 		return errors.New("couldn't write")
 	}
-	transData := data.(*[]transaction)
+	transData := data.(*[]domain.Transaction)
 	mk.Transactions = *transData
 	return nil
 }
