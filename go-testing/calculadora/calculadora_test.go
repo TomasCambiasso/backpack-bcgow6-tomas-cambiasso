@@ -34,3 +34,20 @@ func TestDivide(t *testing.T) {
 	assert.EqualErrorf(t, err, "El denominador no puede ser 0", "AAAAAAAAAAAA")
 }
 
+func TestFibbo(t *testing.T){
+	
+    tests := []struct {
+        arg  int
+        want int
+    }{{0, 0}, {5, 5},{2, 1},{3, 2}}
+
+    for i, d := range tests {
+        got := fibbo(d.arg)
+        if got != d.want {
+            t.Errorf("Test[%d]: fibbo(%d) returned %d, want %d",
+                i, d.arg, got, d.want)
+        }
+    }
+
+}
+
