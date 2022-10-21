@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"os"
+	//"os"
 
 	"github.com/TomasCambiasso/backpack-bcgow6-tomas-cambiasso/cmd/server/handler"
 	"github.com/TomasCambiasso/backpack-bcgow6-tomas-cambiasso/internal/transactions"
@@ -27,7 +27,7 @@ func main() {
 
 	r := gin.Default()
 
-	docs.SwaggerInfo.Host = os.Getenv("HOST")
+	//docs.SwaggerInfo.Host = os.Getenv("HOST")
 	r.GET("/docs/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 	pr := r.Group("/transactions")
 	pr.POST("/", p.Store())
@@ -35,5 +35,9 @@ func main() {
 	pr.PUT("/:id", p.Update())
 	pr.DELETE("/:id", p.Delete())
 	pr.PATCH("/:id", p.UpdateCodeAndAmount())
-	r.Run()
+	err = r.Run()
+	if err != nil{
+		panic("just panic")
+	}
+	
 }
