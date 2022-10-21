@@ -62,7 +62,7 @@ func (r *repository) Store(transaction_code, moneda, emisor, receptor, transacti
 
 	transactions = append(transactions, t)
 
-	if err := r.db.Write(transactions); err != nil {
+	if err := r.db.Write(&transactions); err != nil {
 		return transaction{}, err
 	}
 
