@@ -14,7 +14,8 @@ func MapRoutes(r *gin.Engine) {
 }
 
 func buildProductsRoutes(r *gin.RouterGroup) {
-	repo := products.NewRepository()
+	db := make(map[string][]products.Product)
+	repo := products.NewRepository(db)
 	service := products.NewService(repo)
 	handler := products.NewHandler(service)
 

@@ -1,22 +1,23 @@
 package products
 
+import "errors"
+
 type Repository interface {
 	GetAllBySeller(sellerID string) ([]Product, error)
 }
 
-type repository struct{}
+type repository struct {
+	db map[string][]Product
+}
 
-func NewRepository() Repository {
-	return &repository{}
+func NewRepository(db map[string][]Product) Repository {
+	return &repository{db: db}
 }
 
 func (r *repository) GetAllBySeller(sellerID string) ([]Product, error) {
-	var prodList []Product
-	prodList = append(prodList, Product{
-		ID:          "mock",
-		SellerID:    "FEX112AC",
-		Description: "generic product",
-		Price:       123.55,
-	})
-	return prodList, nil
+	products, ok := r.db[sellerID]
+	if !ok {
+		return nil, errors.New("seller_id not found")
+	}
+	return products, nil
 }
