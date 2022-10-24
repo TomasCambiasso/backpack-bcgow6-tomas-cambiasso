@@ -22,7 +22,7 @@ func (h *Handler) GetProducts(ctx *gin.Context) {
 	}
 	products, err := h.svc.GetAllBySeller(sellerID)
 	if err != nil {
-		ctx.JSON(500, gin.H{"error": err.Error()})
+		ctx.JSON(404, gin.H{"error": err.Error()})
 		return
 	}
 	ctx.JSON(200, products)
