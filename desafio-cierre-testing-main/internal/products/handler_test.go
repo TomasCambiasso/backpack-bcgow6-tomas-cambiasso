@@ -93,26 +93,6 @@ func TestGetProductsNoID(t *testing.T) {
 
 }
 
-func TestGetProductsI(t *testing.T) {
-	//arrange
-	db := make(map[string][]Product)
-	r := createServer(db)
-
-	//act
-	req := httptest.NewRequest(http.MethodGet, "/api/v1/products", nil)
-	req.Header.Add("Content-Type", "application/json")
-	res := httptest.NewRecorder()
-	r.ServeHTTP(res, req)
-	resJson := gin.H{}
-	err := json.Unmarshal(res.Body.Bytes(), &resJson)
-
-	//assert
-	assert.Nil(t, err)
-	assert.Equal(t, 400, res.Code)
-	assert.Equal(t, gin.H{"error": "seller_id query param is required"}, resJson)
-
-}
-
 func TestGetProductsIDNotFound(t *testing.T) {
 	//arrange
 	db := make(map[string][]Product)
