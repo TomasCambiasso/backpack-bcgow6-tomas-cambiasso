@@ -138,7 +138,7 @@ func (t *Transaction) Update() gin.HandlerFunc { /// Las validaciones deberian s
 func (t *Transaction) Delete() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		token := ctx.GetHeader("token")
-		if token != os.Getenv("TOKEN") {
+		if token != "123456"{
 			ctx.JSON(401, gin.H{"error": "token inválido"})
 			return
 		}
