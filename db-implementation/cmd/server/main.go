@@ -1,8 +1,8 @@
 package main
 
 import (
-	"api-movies/cmd/server/routes"
-	"api-movies/pkg/db"
+	"db-implementation/cmd/server/routes"
+	"db-implementation/pkg/db"
 )
 
 func main() {

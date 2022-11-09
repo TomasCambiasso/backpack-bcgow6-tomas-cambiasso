@@ -1,8 +1,6 @@
 package routes
 
 import (
-	"api-movies/cmd/server/handler"
-	"api-movies/internal/movie"
 	"database/sql"
 
 	"github.com/gin-gonic/gin"
