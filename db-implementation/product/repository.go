@@ -19,12 +19,12 @@ type repository struct {
 }
 
 const (
-	SAVE_PRODUCT = "INSERT INTO products (name, type, count, price, id_warehouse) VALUES (?, ?, ?, ?, ?);"
-	UPDATE_PRODUCT = "UPDATE products SET name = ?, type = ?, count = ?, price = ?, id_warehouse = ? where id = ?"
-	GET_ALL_FULL = "SELECT p.id, p.name, p.type, p.count, p.price, w.name, w.adress FROM products p inner join warehouses w on p.id_warehouse = w.id;"
-	GET_ALL      = "SELECT p.id, p.name, p.type, p.count, p.price FROM products p"
-	GET_PRODUCT  = "SELECT id, name, type, count, price FROM products WHERE id=?;"
-	DELETE       = "DELETE FROM products WHERE id = ?"
+	SAVE_PRODUCT   = "INSERT INTO products (name, type, count, price, id_warehouse) VALUES (?, ?, ?, ?, ?);"
+	UPDATE_PRODUCT = "UPDATE products SET name = ?, type = ?, count = ?, price = ?, id_warehouse = ? where id = ?;"
+	GET_ALL_FULL   = "SELECT p.id, p.name, p.type, p.count, p.price, w.name, w.adress FROM products p inner join warehouses w on p.id_warehouse = w.id;"
+	GET_ALL        = "SELECT p.id, p.name, p.type, p.count, p.price FROM products p"
+	GET_PRODUCT    = "SELECT id, name, type, count, price FROM products WHERE id=?;"
+	DELETE         = "DELETE FROM products WHERE id = ?"
 )
 
 func NewRepository(db *sql.DB) Repository {
@@ -55,7 +55,7 @@ func (r *repository) Store(ctx context.Context, name string, ptype string, count
 func (r *repository) GetByID(ctx context.Context, id int) (domain.Product, error) {
 	row := r.db.QueryRow(GET_PRODUCT, id)
 	var prod domain.Product
-	if err := row.Scan(&prod.Id, &prod.Name, &prod.Ptype, &prod.Count, &prod.Price); err != nil {
+	if err := row.Scan(&prod.Id, &prod.Name, &prod.Ptype, &prod.Count, &prod.Price, &prod.Id_warehouse); err != nil {
 		return domain.Product{}, err
 	}
 	return prod, nil

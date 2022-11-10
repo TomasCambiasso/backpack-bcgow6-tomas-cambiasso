@@ -36,24 +36,25 @@ func TestUpdate(t *testing.T) {
 	db, mock, err := sqlmock.New()
 	columns := []string{"id", "name", "type", "count", "price", "id_warehouse"}
 	rows := sqlmock.NewRows(columns)
+	newP := domain.Product{
+		Id:           1,
+		Name:         "ProdC",
+		Ptype:        "TipoC",
+		Count:        2,
+		Price:        20.0,
+		Id_warehouse: 1,
+	}
 	rows.AddRow(1, "ProdA", "ProdB", 1, 10.0, 1)
 	mock.ExpectPrepare(regexp.QuoteMeta(UPDATE_PRODUCT))
-	mock.ExpectExec(regexp.QuoteMeta(UPDATE_PRODUCT)).WithArgs("ProdC", "TipoC", 2, 20.0, 1, 1).WillReturnResult(sqlmock.NewResult(1, 1))
-	mock.ExpectQuery(regexp.QuoteMeta(GET_PRODUCT)).WillReturnRows(rows)
-	assert.NoError(t, mock.ExpectationsWereMet())
+	mock.ExpectExec(regexp.QuoteMeta(UPDATE_PRODUCT)).WithArgs(newP.Name, newP.Ptype, newP.Count, newP.Price, newP.Id_warehouse, newP.Id).WillReturnResult(sqlmock.NewResult(1, 1))
 	repo := NewRepository(db)
-	id, err := repo.Update(context.TODO(), "ProdC", "TipoC", 2, 20.0, 1, 1)
+	id, err := repo.Update(context.TODO(), newP.Name, newP.Ptype, newP.Count, newP.Price, newP.Id_warehouse, newP.Id)
 	assert.NoError(t, err)
+	mock.ExpectQuery(regexp.QuoteMeta(GET_PRODUCT)).WithArgs(newP.Id).WillReturnRows(rows)
 	prod, err := repo.GetByID(context.TODO(), id)
 	assert.NoError(t, err)
-	expectedProd := domain.Product{
-		Id:    1,
-		Name:  "ProdC",
-		Ptype: "TipoC",
-		Count: 2,
-		Price: 20.0,
-	}
-	assert.Equal(t, expectedProd, prod)
+	assert.Equal(t, newP, prod)
+	assert.NoError(t, mock.ExpectationsWereMet())
 
 }
 
