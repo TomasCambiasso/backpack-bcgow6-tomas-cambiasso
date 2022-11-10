@@ -4,11 +4,16 @@ import (
 	"context"
 	"db-implementation/domain"
 	"db-implementation/pkg/db"
+	"errors"
 	"regexp"
 	"testing"
 
 	"github.com/DATA-DOG/go-sqlmock"
 	"github.com/stretchr/testify/assert"
+)
+
+var (
+	ERROR_FORZADO error = errors.New("ERROR_FORZADO")
 )
 
 func TestStore(t *testing.T) {
@@ -34,8 +39,6 @@ func TestStore(t *testing.T) {
 func TestUpdate(t *testing.T) {
 
 	db, mock, err := sqlmock.New()
-	columns := []string{"id", "name", "type", "count", "price", "id_warehouse"}
-	rows := sqlmock.NewRows(columns)
 	newP := domain.Product{
 		Id:           1,
 		Name:         "ProdC",
@@ -44,16 +47,37 @@ func TestUpdate(t *testing.T) {
 		Price:        20.0,
 		Id_warehouse: 1,
 	}
-	rows.AddRow(1, "ProdA", "ProdB", 1, 10.0, 1)
 	mock.ExpectPrepare(regexp.QuoteMeta(UPDATE_PRODUCT))
+	// Le tengo que pasar si o si 6 arguments porque UPDATE_PRODUCT espera 6
 	mock.ExpectExec(regexp.QuoteMeta(UPDATE_PRODUCT)).WithArgs(newP.Name, newP.Ptype, newP.Count, newP.Price, newP.Id_warehouse, newP.Id).WillReturnResult(sqlmock.NewResult(1, 1))
 	repo := NewRepository(db)
 	id, err := repo.Update(context.TODO(), newP.Name, newP.Ptype, newP.Count, newP.Price, newP.Id_warehouse, newP.Id)
 	assert.NoError(t, err)
-	mock.ExpectQuery(regexp.QuoteMeta(GET_PRODUCT)).WithArgs(newP.Id).WillReturnRows(rows)
-	prod, err := repo.GetByID(context.TODO(), id)
+	assert.Equal(t, id, newP.Id)
+	assert.NoError(t, mock.ExpectationsWereMet())
+
+}
+
+func TestDeleteSqlMock(t *testing.T) {
+	db, mock, err := sqlmock.New()
 	assert.NoError(t, err)
-	assert.Equal(t, newP, prod)
+	repo := NewRepository(db)
+	delId := 1
+	mock.ExpectPrepare(regexp.QuoteMeta(DELETE))
+	mock.ExpectExec(regexp.QuoteMeta(DELETE)).WithArgs(delId).WillReturnResult(sqlmock.NewResult(1, 1))
+	err = repo.Delete(context.TODO(), delId)
+	assert.NoError(t, err)
+	assert.NoError(t, mock.ExpectationsWereMet())
+}
+func TestDeleteSqlMockError(t *testing.T) {
+	db, mock, err := sqlmock.New()
+	assert.NoError(t, err)
+	repo := NewRepository(db)
+	delId := 1
+	mock.ExpectPrepare(regexp.QuoteMeta(DELETE))
+	mock.ExpectExec(regexp.QuoteMeta(DELETE)).WithArgs(delId).WillReturnError(ERROR_FORZADO)
+	err = repo.Delete(context.TODO(), delId)
+	assert.EqualValues(t, ERROR_FORZADO, err)
 	assert.NoError(t, mock.ExpectationsWereMet())
 
 }
