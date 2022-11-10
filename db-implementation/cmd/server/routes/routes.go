@@ -30,10 +30,10 @@ func (r *router) setGroup() {
 }
 
 func (r *router) buildSellerRoutes() {
-	repo := movie.NewRepository(r.db)
-	service := movie.NewService(repo)
-	handler := handler.NewMovie(service)
-	r.rg.GET("/movies/:id", handler.Get())
-	r.rg.POST("/movies", handler.Create())
+	// /repo := movie.NewRepository(r.db)
+	// service := movie.NewService(repo)
+	// handler := handler.NewMovie(service)
+	// r.rg.GET("/movies/:id", handler.Get())
+	// r.rg.POST("/movies", handler.Create())
 
 }
